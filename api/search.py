@@ -1,5 +1,4 @@
 import json
-from fastapi import Request
 from pathlib import Path
 
 NOTES_FILE = Path("/tmp/notes.jsonl")
@@ -16,12 +15,12 @@ def get_all_notes():
                 pass
     return notes
 
-async def handler(request: Request):
+def handler(event, context):
     try:
-        body = await request.json()
+        body = json.loads(event.get("body", "{}"))
         query = body.get("q", "").lower().strip()
         notes = get_all_notes()
         matches = [n for n in notes if query in n["text"].lower()]
-        return {"matches": matches}
+        return {"statusCode": 200, "body": json.dumps({"matches": matches})}
     except Exception as e:
-        return {"error": str(e)}
+        return {"statusCode": 500, "body": json.dumps({"error": str(e)})}
