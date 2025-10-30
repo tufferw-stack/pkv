@@ -1,5 +1,4 @@
 import json
-from fastapi import Request, Response
 from pathlib import Path
 
 NOTES_FILE = Path("/tmp/notes.jsonl")
@@ -13,13 +12,13 @@ def save_note(text: str):
     entry = {"text": text.strip()}
     NOTES_FILE.open("a").write(json.dumps(entry) + "\n")
 
-async def handler(request: Request):
+def handler(event, context):
     try:
-        body = await request.json()
+        body = json.loads(event.get("body", "{}"))
         text = body.get("text", "").strip()
         if not text:
-            return Response('{"error":"empty"}', status_code=400)
+            return {"statusCode": 400, "body": json.dumps({"error": "empty"})}
         save_note(text)
-        return {"status": "saved"}
+        return {"statusCode": 200, "body": json.dumps({"status": "saved"})}
     except Exception as e:
-        return Response(f'{{"error":"{str(e)}"}}', status_code=500)
+        return {"statusCode": 500, "body": json.dumps({"error": str(e)})}
