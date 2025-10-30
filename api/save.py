@@ -3,7 +3,7 @@ from pathlib import Path
 
 NOTES_FILE = Path("/tmp/notes.jsonl")
 
-def handler(event, context):
+def handler(event, context=None):
     try:
         body = json.loads(event.get("body", "{}"))
         text = body.get("text", "").strip()
