@@ -2,7 +2,6 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
 export default async function handler(req, res) {
   try {
-    // === VEEQO PULL ===
     const token = process.env.VEEQO_API_KEY;
     if (!token) throw new Error("Missing VEEQO_API_KEY");
 
@@ -21,25 +20,20 @@ export default async function handler(req, res) {
       .filter(p => p.stock_level < 10)
       .map(p => `Low stock: ${p.title} (SKU: ${p.sku}) – ${p.stock_level} left!`);
 
-    // === AWS S3 LOG ===
+    // AWS S3 LOG
     try {
       const s3 = new S3Client({ region: "us-east-1" });
       const logKey = `pulls/${new Date().toISOString().split('T')[0]}.json`;
       await s3.send(new PutObjectCommand({
         Bucket: "pkv-agent-logs",
         Key: logKey,
-        Body: JSON.stringify({
-          pulled_at: new Date().toISOString(),
-          alerts,
-          sample: data.slice(0, 3).map(p => ({ sku: p.sku, stock: p.stock_level }))
-        }, null, 2),
+        Body: JSON.stringify({ pulled_at: new Date().toISOString(), alerts, sample: data.slice(0, 3) }, null, 2),
         ContentType: "application/json"
       }));
     } catch (e) {
-      console.error("S3 log failed:", e.message);
+      console.error("S3 failed:", e.message);
     }
 
-    // === RETURN JSON ===
     res.json({
       success: true,
       pulled_at: new Date().toISOString(),
