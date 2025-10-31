@@ -1,31 +1,4 @@
-import { useEffect, useState } from 'react';
-
-export default function Dashboard() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch('/api/veeqo-live');
-        const json = await res.json();
-        if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
-        setData(json);
-        setError(null);
-      } catch (e) {
-        setError(e.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-    const interval = setInterval(fetchData, 60000);
-    return () => clearInterval(interval);
-  }, []);
-
-  if (loading) return <p style={{ padding: '2rem' }}>Loading agents...</p>;
+export default function Dashboard({ data, error }) {
   if (error) return <p style={{ padding: '2rem', color: 'red' }}>Error: {error}</p>;
 
   return (
@@ -84,4 +57,15 @@ export default function Dashboard() {
       </p>
     </div>
   );
+}
+
+export async function getServerSideProps() {
+  try {
+    const res = await fetch('https://pkv-agents.onrender.com/api/veeqo-live');
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
+    return { props: { data: json } };
+  } catch (e) {
+    return { props: { error: e.message } };
+  }
 }
