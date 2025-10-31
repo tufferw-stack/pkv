@@ -1,32 +1,29 @@
-export default async function handler(req, res) {
-  const token = process.env.VEEQO_API_KEY;
-  if (!token) return res.status(500).json({ error: "Missing VEEQO_API_KEY" });
+res.json({
+  success: true,
+  pulled_at: new Date().toISOString(),
+  total_products: data.length,
+  s3_log: `https://s3.console.aws.amazon.com/s3/object/pkv-agent-logs?prefix=${logKey}`,
 
-  try {
-    const r = await fetch("https://api.veeqo.com/products?per_page=5", {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+  // === ALERTS FOR YOUR APP ===
+  alerts: alerts.map(alert => {
+    const sku = alert.split('(SKU: ')[1]?.split(')')[0];
+    return {
+      message: alert,
+      sku,
+      action: `Reorder 50 units`,
+      api: `/api/reorder`,
+      payload: {
+        sku,
+        quantity: 50,
+        supplier_id: process.env.DEFAULT_SUPPLIER_ID
+      }
+    };
+  }),
+  // === END ALERTS ===
 
-    if (!r.ok) throw new Error(`Veeqo API error: ${r.status}`);
-
-    const data = await r.json();
-
-    const alerts = data
-      .filter(p => p.stock_level < 10)
-      .map(p => `Low stock: ${p.title} (SKU: ${p.sku}) – only ${p.stockf_level} left!`);
-
-    res.json({
-      success: true,
-      pulled_at: new Date().toISOString(),
-      total_products: data.length,
-      low_stock_alerts: alerts,
-      sample: data.slice(0, 3).map(p => ({
-        name: p.title,
-        sku: p.sku,
-        stock: p.stock_level
-      }))
-    });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-}
+  sample: data.slice(0, 3).map(p => ({
+    name: p.title,
+    sku: p.sku,
+    stock: p.stock_level
+  }))
+});
