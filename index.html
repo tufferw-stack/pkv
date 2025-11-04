@@ -1,58 +1,87 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>PKV</title>
-  <style>
-    body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; padding: 1rem; }
-    textarea, input, button { width: 100%; padding: 0.5rem; margin: 0.5rem 0; font-size: 1rem; }
-    button { background: #0070f3; color: white; border: none; cursor: pointer; }
-    .result { padding: 1rem; background: #f4f4f4; margin: 1rem 0; border-left: 4px solid #0070f3; }
-    h1 { color: #0070f3; }
-  </style>
-</head>
-<body>
-  <h1>Personal Knowledge Vault</h1>
-  <p><strong>Version 3.0 — LIVE & WORKING</strong></p>
+  <head>
+    <meta charset="UTF-8" />
+    <title>PKV</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 1rem;
+      }
+      textarea,
+      input,
+      button {
+        width: 100%;
+        padding: 0.5rem;
+        margin: 0.5rem 0;
+        font-size: 1rem;
+      }
+      button {
+        background: #0070f3;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      .result {
+        padding: 1rem;
+        background: #f4f4f4;
+        margin: 1rem 0;
+        border-left: 4px solid #0070f3;
+      }
+      h1 {
+        color: #0070f3;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Personal Knowledge Vault</h1>
+    <p><strong>Version 3.0 — LIVE & WORKING</strong></p>
 
-  <h3>Save Note</h3>
-  <textarea id="note" rows="3" placeholder="Type anything..."></textarea>
-  <button onclick="save()">Save</button>
+    <h3>Save Note</h3>
+    <textarea id="note" rows="3" placeholder="Type anything..."></textarea>
+    <button onclick="save()">Save</button>
 
-  <h3>Search</h3>
-  <input id="query" placeholder="search..." />
-  <button onclick="search()">Search</button>
+    <h3>Search</h3>
+    <input id="query" placeholder="search..." />
+    <button onclick="search()">Search</button>
 
-  <div id="output"></div>
+    <div id="output"></div>
 
-  <script>
-    async function save() {
-      const text = document.getElementById("note").value.trim();
-      if (!text) return alert("Empty note!");
-      const res = await fetch("/api/save", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text })
-      });
-      const json = await res.json();
-      alert(json.status || json.error);
-      document.getElementById("note").value = "";
-    }
+    <script>
+      async function save() {
+        const text = document.getElementById("note").value.trim();
+        if (!text) return alert("Empty note!");
+        const res = await fetch("/api/save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+        });
+        const json = await res.json();
+        alert(json.status || json.error);
+        document.getElementById("note").value = "";
+      }
 
-    async function search() {
-      const q = document.getElementById("query").value.trim();
-      if (!q) return;
-      const res = await fetch("/api/search", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ q })
-      });
-      const { matches } = await res.json();
-      const out = document.getElementById("output");
-      out.innerHTML = matches.length
-        ? matches.map(m => `<div class="result"><strong>Note:</strong> ${m.text}</div>`).join("")
-        : "<i>No matches found.</i>";
-    }
-  </script>
-</body>
+      async function search() {
+        const q = document.getElementById("query").value.trim();
+        if (!q) return;
+        const res = await fetch("/api/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ q }),
+        });
+        const { matches } = await res.json();
+        const out = document.getElementById("output");
+        out.innerHTML = matches.length
+          ? matches
+              .map(
+                (m) =>
+                  `<div class="result"><strong>Note:</strong> ${m.text}</div>`,
+              )
+              .join("")
+          : "<i>No matches found.</i>";
+      }
+    </script>
+  </body>
 </html>

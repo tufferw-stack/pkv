@@ -1,0 +1,25 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Next (dev)",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["next", "dev", "-H", "127.0.0.1", "-p", "3010"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "serverReadyAction": {
+        "pattern": "Local:\\s+http://127.0.0.1:3010",
+        "action": "openExternally",
+        "uriFormat": "http://127.0.0.1:3010/dashboard"
+      }
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to Process",
+      "processId": "${command:PickProcess}"
+    }
+  ]
+}
