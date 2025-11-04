@@ -8,11 +8,9 @@ export default async function handler(req, res) {
     const body = req.body || {};
     const { prompt } = body;
     if (typeof prompt !== "string" || !prompt.trim()) {
-      return res
-        .status(400)
-        .json({
-          error: "Invalid request: `prompt` (non-empty string) required",
-        });
+      return res.status(400).json({
+        error: "Invalid request: `prompt` (non-empty string) required",
+      });
     }
 
     // Simulate or delegate to a real agent runner later.
